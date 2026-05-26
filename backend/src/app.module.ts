@@ -7,6 +7,7 @@ import { HarvestsModule } from './modules/harvests/harvests.module';
 import { CropTypesModule } from './modules/crop-types/crop-types.module';
 import { PlantedCropsModule } from './modules/planted-crops/planted-crops.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { SeedModule } from './database/seeds/seed.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     CropTypesModule,
     PlantedCropsModule,
     DashboardModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
