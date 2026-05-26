@@ -1,0 +1,57 @@
+@startuml Brain Agriculture ER Diagram
+
+entity "produtores" {
+  * id : UUID <<PK>>
+  --
+  * document : VARCHAR(18) <<UNIQUE>>
+  * document_type : VARCHAR(4)
+  * name : VARCHAR(255)
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "fazendas" {
+  * id : UUID <<PK>>
+  --
+  * producer_id : UUID <<FK>>
+  * name : VARCHAR(255)
+  * city : VARCHAR(255)
+  * state : CHAR(2)
+  * total_area_hectares : DECIMAL(12,4)
+  * arable_area_hectares : DECIMAL(12,4)
+  * vegetation_area_hectares : DECIMAL(12,4)
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "safras" {
+  * id : UUID <<PK>>
+  --
+  * name : VARCHAR(100)
+  * created_at : TIMESTAMP
+}
+
+entity "tipos_cultura" {
+  * id : UUID <<PK>>
+  --
+  * name : VARCHAR(100) <<UNIQUE>>
+  * created_at : TIMESTAMP
+}
+
+entity "culturas_plantadas" {
+  * id : UUID <<PK>>
+  --
+  * farm_id : UUID <<FK>>
+  * harvest_id : UUID <<FK>>
+  * crop_type_id : UUID <<FK>>
+  * created_at : TIMESTAMP
+  --
+  UNIQUE(farm_id, harvest_id, crop_type_id)
+}
+
+produtores ||--o{ fazendas : "has"
+fazendas ||--o{ culturas_plantadas : "has"
+safras ||--o{ culturas_plantadas : "has"
+tipos_cultura ||--o{ culturas_plantadas : "has"
+
+@enduml
