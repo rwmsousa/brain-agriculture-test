@@ -1,0 +1,62 @@
+version: '3.9'
+
+networks:
+  brain-agriculture-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: brain-agriculture-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-brain_agriculture}
+      POSTGRES_USER: ${POSTGRES_USER:-brain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agriculture}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - brain-agriculture-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-brain} -d ${POSTGRES_DB:-brain_agriculture}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: brain-agriculture-backend
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-brain_agriculture}
+      POSTGRES_USER: ${POSTGRES_USER:-brain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agriculture}
+      PORT: ${PORT:-3001}
+    ports:
+      - '3001:3001'
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - brain-agriculture-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: brain-agriculture-frontend
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:3001/api/v1}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - brain-agriculture-net
