@@ -27,4 +27,4 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
-.makuco
+.makuco/*
