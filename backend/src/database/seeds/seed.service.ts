@@ -11,9 +11,19 @@ import { stripDocument } from '../../common/validators/cpf-cnpj.validator';
 import { buildFarm } from './factories/farm.factory';
 import { buildProducer } from './factories/producer.factory';
 
-const STATES_DISTRIBUTION = ['MT', 'GO', 'SP', 'MG', 'PR', 'RS', 'BA'];
-const CROP_TYPES = ['Soja', 'Milho', 'Cafe', 'Cana de Acucar', 'Algodao'];
-const HARVESTS = ['Safra 2023', 'Safra 2024'];
+// ─── Dados de referência ─────────────────────────────────────────────────────
+const STATES_DISTRIBUTION = ['MT', 'GO', 'SP', 'MG', 'PR', 'RS', 'BA', 'MS', 'TO', 'PI'];
+
+// Nomes devem coincidir exatamente com a migração 005-seed-crop-types
+const CROP_TYPES = ['Soja', 'Milho', 'Cafe', 'Cana de Acucar', 'Algodao', 'Trigo'];
+
+const HARVESTS = ['Safra 2021', 'Safra 2022', 'Safra 2023', 'Safra 2024'];
+
+// ─── Número de fazendas por produtor (15 produtores × dist = 27 fazendas)
+//     Total: 15 produtores + 27 fazendas = 42 itens principais cadastrados
+const FARMS_PER_PRODUCER = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1];
+
+const TOTAL_PRODUCERS = FARMS_PER_PRODUCER.length; // 15
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -44,37 +54,44 @@ export class SeedService implements OnApplicationBootstrap {
     const cropTypeEntities = await this.seedCropTypes();
     await this.seedProducers(harvestEntities, cropTypeEntities);
 
-    this.logger.log('Seed concluído com sucesso!');
+    const totalProducers = await this.producerRepo.count();
+    const totalFarms = await this.farmRepo.count();
+    this.logger.log(
+      `Seed concluído: ${totalProducers} produtores + ${totalFarms} fazendas = ${totalProducers + totalFarms} itens`,
+    );
   }
 
+  // ─── Safras ────────────────────────────────────────────────────────────────
   private async seedHarvests(): Promise<Harvest[]> {
     const entities: Harvest[] = [];
     for (const name of HARVESTS) {
       let harvest = await this.harvestRepo.findOne({ where: { name } });
       if (!harvest) {
         harvest = await this.harvestRepo.save(this.harvestRepo.create({ name }));
-        this.logger.log(`Safra criada: ${name}`);
+        this.logger.log(`  Safra criada: ${name}`);
       }
       entities.push(harvest);
     }
     return entities;
   }
 
+  // ─── Tipos de cultura ──────────────────────────────────────────────────────
   private async seedCropTypes(): Promise<CropType[]> {
     const entities: CropType[] = [];
     for (const name of CROP_TYPES) {
       let cropType = await this.cropTypeRepo.findOne({ where: { name } });
       if (!cropType) {
         cropType = await this.cropTypeRepo.save(this.cropTypeRepo.create({ name }));
-        this.logger.log(`Tipo de cultura criado: ${name}`);
+        this.logger.log(`  Tipo de cultura criado: ${name}`);
       }
       entities.push(cropType);
     }
     return entities;
   }
 
+  // ─── Produtores (15) ───────────────────────────────────────────────────────
   private async seedProducers(harvests: Harvest[], cropTypes: CropType[]): Promise<void> {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < TOTAL_PRODUCERS; i++) {
       const producerData = buildProducer(i);
       const document = stripDocument(producerData.document);
 
@@ -87,22 +104,25 @@ export class SeedService implements OnApplicationBootstrap {
             name: producerData.name,
           }),
         );
-        this.logger.log(`Produtor criado: ${producer.name}`);
+        this.logger.log(`  Produtor [${producerData.documentType}]: ${producer.name}`);
       }
 
       await this.seedFarms(producer, i, harvests, cropTypes);
     }
   }
 
+  // ─── Fazendas (27 = Σ FARMS_PER_PRODUCER) ─────────────────────────────────
   private async seedFarms(
     producer: Producer,
     producerIndex: number,
     harvests: Harvest[],
     cropTypes: CropType[],
   ): Promise<void> {
-    const farmCount = (producerIndex % 3) + 1;
+    const farmCount = FARMS_PER_PRODUCER[producerIndex] ?? 1;
+
     for (let j = 0; j < farmCount; j++) {
-      const state = STATES_DISTRIBUTION[(producerIndex + j) % STATES_DISTRIBUTION.length];
+      const stateIndex = (producerIndex * 2 + j) % STATES_DISTRIBUTION.length;
+      const state = STATES_DISTRIBUTION[stateIndex];
       const farmData = buildFarm(producer.id, state, j);
 
       let farm = await this.farmRepo.findOne({
@@ -121,36 +141,47 @@ export class SeedService implements OnApplicationBootstrap {
             vegetationAreaHectares: farmData.vegetationAreaHectares,
           }),
         );
-        this.logger.log(`Fazenda criada: ${farm.name} (${state})`);
+        this.logger.log(`    Fazenda: ${farm.name} (${state})`);
       }
 
-      await this.seedPlantedCrops(farm, j, harvests, cropTypes);
+      await this.seedPlantedCrops(farm, j, harvests, cropTypes, producerIndex);
     }
   }
 
+  // ─── Culturas plantadas (2–3 por fazenda × safras) ─────────────────────────
   private async seedPlantedCrops(
     farm: Farm,
     farmIndex: number,
     harvests: Harvest[],
     cropTypes: CropType[],
+    producerIndex: number,
   ): Promise<void> {
-    const cropCount = (farmIndex % 2) + 2;
-    for (let k = 0; k < cropCount; k++) {
-      const cropType = cropTypes[k % cropTypes.length];
-      const harvest = harvests[k % harvests.length];
+    // Cada fazenda recebe 2 culturas × 2 safras para cobrir bem os gráficos
+    const selectedCrops = [
+      cropTypes[(producerIndex + farmIndex) % cropTypes.length],
+      cropTypes[(producerIndex + farmIndex + 2) % cropTypes.length],
+    ];
 
-      const existing = await this.plantedCropRepo.findOne({
-        where: { farmId: farm.id, harvestId: harvest.id, cropTypeId: cropType.id },
-      });
+    const selectedHarvests = [
+      harvests[farmIndex % harvests.length],
+      harvests[(farmIndex + 1) % harvests.length],
+    ];
 
-      if (!existing) {
-        await this.plantedCropRepo.save(
-          this.plantedCropRepo.create({
-            farmId: farm.id,
-            harvestId: harvest.id,
-            cropTypeId: cropType.id,
-          }),
-        );
+    for (const harvest of selectedHarvests) {
+      for (const cropType of selectedCrops) {
+        const existing = await this.plantedCropRepo.findOne({
+          where: { farmId: farm.id, harvestId: harvest.id, cropTypeId: cropType.id },
+        });
+
+        if (!existing) {
+          await this.plantedCropRepo.save(
+            this.plantedCropRepo.create({
+              farmId: farm.id,
+              harvestId: harvest.id,
+              cropTypeId: cropType.id,
+            }),
+          );
+        }
       }
     }
   }

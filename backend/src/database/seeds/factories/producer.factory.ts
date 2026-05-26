@@ -1,6 +1,6 @@
 import { CreateProducerDto } from '../../../modules/producers/dto/create-producer.dto';
 
-// Pre-defined list of valid CPFs for reproducibility
+// ─── CPFs válidos (para teste) ────────────────────────────────────────────────
 const VALID_CPFS = [
   '52998224725',
   '27548406134',
@@ -10,10 +10,20 @@ const VALID_CPFS = [
   '45607488020',
   '10938158686',
   '38176123625',
-  '54271113794',
-  '65427227261',
 ];
 
+// ─── CNPJs válidos (gerados deterministicamente para testes) ──────────────────
+const VALID_CNPJS = [
+  '10000001000190',
+  '10000002000134',
+  '10000003000189',
+  '10000004000123',
+  '10000005000178',
+  '10000006000112',
+  '10000007000167',
+];
+
+// ─── Nomes fictícios de produtores ───────────────────────────────────────────
 const PRODUCER_NAMES = [
   'Maria Fernanda Costa',
   'Joao Pedro Almeida',
@@ -25,18 +35,34 @@ const PRODUCER_NAMES = [
   'Marcelo Torres Ferreira',
   'Juliana Mendes Carvalho',
   'Anderson Lima Barbosa',
+  'Agropecuaria Brasil Ltda',
+  'Fazendas do Cerrado S.A.',
+  'Grupo Rural Norte Ltda',
+  'Cooperativa Agro Sudeste',
+  'Agromax Investimentos Ltda',
 ];
+
+// ─── Tipo de documento por índice ────────────────────────────────────────────
+// Produtores 0-7  → CPF
+// Produtores 8-14 → CNPJ
+function resolveDocument(index: number): { document: string; documentType: 'CPF' | 'CNPJ' } {
+  if (index < 8) {
+    return { document: VALID_CPFS[index], documentType: 'CPF' };
+  }
+  return { document: VALID_CNPJS[index - 8], documentType: 'CNPJ' };
+}
 
 export function buildProducer(
   index: number,
   overrides?: Partial<CreateProducerDto>,
 ): CreateProducerDto {
+  const { document, documentType } = resolveDocument(index % PRODUCER_NAMES.length);
   return {
-    document: VALID_CPFS[index % VALID_CPFS.length],
-    documentType: 'CPF',
+    document,
+    documentType,
     name: PRODUCER_NAMES[index % PRODUCER_NAMES.length],
     ...overrides,
   };
 }
 
-export { VALID_CPFS };
+export { VALID_CPFS, VALID_CNPJS };

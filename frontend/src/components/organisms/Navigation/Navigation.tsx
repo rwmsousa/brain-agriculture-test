@@ -39,6 +39,7 @@ export const Navigation: React.FC = () => (
     <Brand>Brain Agriculture</Brand>
     <StyledNavLink to="/dashboard">Dashboard</StyledNavLink>
     <StyledNavLink to="/producers">Produtores</StyledNavLink>
+    <StyledNavLink to="/config">Configurações</StyledNavLink>
   </Nav>
 );
 

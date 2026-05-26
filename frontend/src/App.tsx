@@ -6,6 +6,7 @@ import { Navigation } from './components/organisms/Navigation/Navigation';
 import { DashboardPage } from './pages/DashboardPage/DashboardPage';
 import { ProducersPage } from './pages/ProducersPage/ProducersPage';
 import { ProducerDetailPage } from './pages/ProducerDetailPage/ProducerDetailPage';
+import { ConfigPage } from './pages/ConfigPage/ConfigPage';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/producers" element={<ProducersPage />} />
           <Route path="/producers/:id" element={<ProducerDetailPage />} />
+          <Route path="/config" element={<ConfigPage />} />
         </Routes>
       </BrowserRouter>
     </Provider>

@@ -14,6 +14,10 @@ export const fetchCropTypes = createAsyncThunk('cropTypes/fetchAll', () =>
   cropTypesService.getCropTypes(),
 );
 
+export const createCropType = createAsyncThunk('cropTypes/create', (data: { name: string }) =>
+  cropTypesService.createCropType(data),
+);
+
 const cropTypesSlice = createSlice({
   name: 'cropTypes',
   initialState,
@@ -31,6 +35,10 @@ const cropTypesSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message ?? 'Erro ao carregar tipos de cultura';
       });
+
+    builder.addCase(createCropType.fulfilled, (state, action) => {
+      state.items.push(action.payload);
+    });
   },
 });
 

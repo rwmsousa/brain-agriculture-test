@@ -10,7 +10,8 @@ export class SeedCropTypes1700000000005 implements MigrationInterface {
         ('Milho'),
         ('Cafe'),
         ('Cana de Acucar'),
-        ('Algodao')
+        ('Algodao'),
+        ('Trigo')
       ON CONFLICT ("name") DO NOTHING
     `);
   }
