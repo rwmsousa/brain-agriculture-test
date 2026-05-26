@@ -6,8 +6,13 @@ networks:
 
 volumes:
   pgdata:
+  sonarqube_db:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
 
 services:
+  # ─── Banco de dados da aplicação ───────────────────────────────────────────
   database:
     image: postgres:15-alpine
     container_name: brain-agriculture-db
@@ -27,6 +32,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ─── Backend (NestJS) ───────────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
@@ -47,16 +53,59 @@ services:
     networks:
       - brain-agriculture-net
 
+  # ─── Frontend (React + Nginx) ───────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: brain-agriculture-frontend
-    environment:
-      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:3001/api/v1}
     ports:
       - '3000:3000'
     depends_on:
       - backend
     networks:
       - brain-agriculture-net
+
+  # ─── Banco de dados dedicado ao SonarQube ──────────────────────────────────
+  sonarqube-db:
+    image: postgres:15-alpine
+    container_name: brain-agriculture-sonar-db
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - sonarqube_db:/var/lib/postgresql/data
+    networks:
+      - brain-agriculture-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sonar -d sonar']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── SonarQube ─────────────────────────────────────────────────────────────
+  sonarqube:
+    image: sonarqube:community
+    container_name: brain-agriculture-sonarqube
+    depends_on:
+      sonarqube-db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    ports:
+      - '9000:9000'
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - brain-agriculture-net
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    sysctls:
+      vm.max_map_count: '524288'
