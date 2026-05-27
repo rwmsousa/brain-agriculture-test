@@ -1,5 +1,3 @@
-version: '3.9'
-
 networks:
   brain-agriculture-net:
     driver: bridge
