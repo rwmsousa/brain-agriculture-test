@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import producersReducer from '../../../store/slices/producersSlice';
@@ -57,13 +57,22 @@ const createTestStore = () =>
     },
   });
 
-const renderForm = (props = {}) => {
+/**
+ * Renderiza o formulário e aguarda a resolução dos thunks disparados no
+ * useEffect de montagem (fetchHarvests + fetchCropTypes) para evitar
+ * warnings de "not wrapped in act(...)".
+ */
+const renderForm = async (props: Record<string, unknown> = {}) => {
   const store = createTestStore();
-  return render(
-    <Provider store={store}>
-      <ProducerForm {...props} />
-    </Provider>,
-  );
+  let result!: ReturnType<typeof render>;
+  await act(async () => {
+    result = render(
+      <Provider store={store}>
+        <ProducerForm {...(props as any)} />
+      </Provider>,
+    );
+  });
+  return result;
 };
 
 /** Preenche os campos obrigatórios do formulário (produtor + fazenda). */
@@ -90,15 +99,15 @@ describe('ProducerForm — novo formulário unificado', () => {
   });
 
   describe('Renderização', () => {
-    it('exibe todos os campos obrigatórios do produtor', () => {
-      renderForm();
+    it('exibe todos os campos obrigatórios do produtor', async () => {
+      await renderForm();
       expect(screen.getByLabelText('Nome do Produtor')).toBeInTheDocument();
       expect(screen.getByLabelText('CPF')).toBeInTheDocument();
       expect(screen.getByText('Tipo de Documento')).toBeInTheDocument();
     });
 
-    it('exibe todos os campos obrigatórios da fazenda', () => {
-      renderForm();
+    it('exibe todos os campos obrigatórios da fazenda', async () => {
+      await renderForm();
       expect(screen.getByLabelText('Nome da Fazenda')).toBeInTheDocument();
       expect(screen.getByLabelText('Cidade')).toBeInTheDocument();
       expect(screen.getByLabelText('Estado')).toBeInTheDocument();
@@ -107,18 +116,18 @@ describe('ProducerForm — novo formulário unificado', () => {
       expect(screen.getByLabelText('Área de Vegetação (ha)')).toBeInTheDocument();
     });
 
-    it('exibe seção de culturas plantadas com botão de adicionar', () => {
-      renderForm();
+    it('exibe seção de culturas plantadas com botão de adicionar', async () => {
+      await renderForm();
       expect(screen.getByText('Culturas Plantadas')).toBeInTheDocument();
       expect(screen.getByText('+ Adicionar Cultura')).toBeInTheDocument();
     });
 
-    it('exibe botão "Cadastrar Produtor" para novo produtor', () => {
-      renderForm();
+    it('exibe botão "Cadastrar Produtor" para novo produtor', async () => {
+      await renderForm();
       expect(screen.getByText('Cadastrar Produtor')).toBeInTheDocument();
     });
 
-    it('exibe botão "Salvar Alterações" no modo edição', () => {
+    it('exibe botão "Salvar Alterações" no modo edição', async () => {
       const producer = {
         id: 'p1',
         name: 'Maria',
@@ -128,12 +137,12 @@ describe('ProducerForm — novo formulário unificado', () => {
         createdAt: '',
         updatedAt: '',
       };
-      renderForm({ producer });
+      await renderForm({ producer });
       expect(screen.getByText('Salvar Alterações')).toBeInTheDocument();
     });
 
-    it('altera placeholder do documento ao trocar tipo para CNPJ', () => {
-      renderForm();
+    it('altera placeholder do documento ao trocar tipo para CNPJ', async () => {
+      await renderForm();
       const typeSelect = screen.getByDisplayValue('CPF');
       fireEvent.change(typeSelect, { target: { value: 'CNPJ' } });
       expect(screen.getByLabelText('CNPJ')).toBeInTheDocument();
@@ -143,7 +152,7 @@ describe('ProducerForm — novo formulário unificado', () => {
 
   describe('Validações do produtor', () => {
     it('exibe erro quando nome está vazio', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.click(screen.getByText('Cadastrar Produtor'));
 
       await waitFor(() => {
@@ -152,7 +161,7 @@ describe('ProducerForm — novo formulário unificado', () => {
     });
 
     it('exibe erro de CPF inválido', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.change(screen.getByLabelText('Nome do Produtor'), { target: { value: 'Teste' } });
       fireEvent.change(screen.getByLabelText('CPF'), { target: { value: '111.111.111-11' } });
       fireEvent.click(screen.getByText('Cadastrar Produtor'));
@@ -164,7 +173,7 @@ describe('ProducerForm — novo formulário unificado', () => {
 
     it('não dispara submissão com CPF inválido', async () => {
       const mockCreate = jest.spyOn(producersService, 'createProducer');
-      renderForm();
+      await renderForm();
 
       fireEvent.change(screen.getByLabelText('Nome do Produtor'), { target: { value: 'Teste' } });
       fireEvent.change(screen.getByLabelText('CPF'), { target: { value: '000.000.000-00' } });
@@ -178,7 +187,7 @@ describe('ProducerForm — novo formulário unificado', () => {
 
   describe('Validações da fazenda', () => {
     it('exibe erros quando campos da fazenda estão vazios', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.change(screen.getByLabelText('Nome do Produtor'), { target: { value: 'João' } });
       fireEvent.change(screen.getByLabelText('CPF'), { target: { value: '529.982.247-25' } });
       fireEvent.click(screen.getByText('Cadastrar Produtor'));
@@ -191,7 +200,7 @@ describe('ProducerForm — novo formulário unificado', () => {
     });
 
     it('exibe erro quando soma das áreas excede área total', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.change(screen.getByLabelText('Nome do Produtor'), { target: { value: 'João' } });
       fireEvent.change(screen.getByLabelText('CPF'), { target: { value: '529.982.247-25' } });
       fireEvent.change(screen.getByLabelText('Nome da Fazenda'), { target: { value: 'Fazenda' } });
@@ -218,7 +227,7 @@ describe('ProducerForm — novo formulário unificado', () => {
 
   describe('Culturas plantadas', () => {
     it('adiciona nova linha de cultura ao clicar no botão', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.click(screen.getByText('+ Adicionar Cultura'));
       await waitFor(() => {
         expect(screen.getAllByText(/Selecione a safra/i).length).toBeGreaterThan(0);
@@ -226,7 +235,7 @@ describe('ProducerForm — novo formulário unificado', () => {
     });
 
     it('remove linha de cultura ao clicar no botão ×', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.click(screen.getByText('+ Adicionar Cultura'));
 
       await waitFor(() => {
@@ -242,7 +251,7 @@ describe('ProducerForm — novo formulário unificado', () => {
     });
 
     it('exibe erro quando linha de cultura está incompleta ao submeter', async () => {
-      renderForm();
+      await renderForm();
       fireEvent.click(screen.getByText('+ Adicionar Cultura'));
       fillRequiredFields();
       fireEvent.click(screen.getByText('Cadastrar Produtor'));
@@ -282,7 +291,7 @@ describe('ProducerForm — novo formulário unificado', () => {
       jest.spyOn(farmsService, 'createFarm').mockResolvedValue(mockFarm);
 
       const onSuccess = jest.fn();
-      renderForm({ onSuccess });
+      await renderForm({ onSuccess });
       fillRequiredFields();
       fireEvent.click(screen.getByText('Cadastrar Produtor'));
 
