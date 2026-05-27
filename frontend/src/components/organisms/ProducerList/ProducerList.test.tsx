@@ -16,7 +16,7 @@ const createTestStore = () =>
 const renderList = (producers: Producer[], onEdit?: (p: Producer) => void) => {
   const store = createTestStore();
   return render(
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Provider store={store}>
         <ProducerList producers={producers} onEdit={onEdit} />
       </Provider>
