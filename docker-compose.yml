@@ -1,0 +1,134 @@
+networks:
+  brain-agriculture-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  sonarqube_db:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+
+services:
+  # ─── Banco de dados da aplicação ───────────────────────────────────────────
+  database:
+    image: postgres:15-alpine
+    container_name: brain-agriculture-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-brain_agriculture}
+      POSTGRES_USER: ${POSTGRES_USER:-brain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agriculture}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - brain-agriculture-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-brain} -d ${POSTGRES_DB:-brain_agriculture}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend (NestJS) ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: brain-agriculture-backend
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-brain_agriculture}
+      POSTGRES_USER: ${POSTGRES_USER:-brain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agriculture}
+      PORT: ${PORT:-3001}
+    ports:
+      - '3001:3001'
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - brain-agriculture-net
+
+  # ─── Frontend (React + Nginx) ───────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: brain-agriculture-frontend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - brain-agriculture-net
+
+  # ─── Banco de dados dedicado ao SonarQube ──────────────────────────────────
+  sonarqube-db:
+    image: postgres:15-alpine
+    container_name: brain-agriculture-sonar-db
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - sonarqube_db:/var/lib/postgresql/data
+    networks:
+      - brain-agriculture-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sonar -d sonar']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── SonarQube ─────────────────────────────────────────────────────────────
+  sonarqube:
+    image: sonarqube:community
+    container_name: brain-agriculture-sonarqube
+    depends_on:
+      sonarqube-db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      # Garante senha conhecida do admin para o sonarqube-setup funcionar.
+      # Sobrescreva com SONAR_ADMIN_PASSWORD=suasenha no arquivo .env
+      SONAR_SECURITY_LOCALUSERS_ADMIN_PASSWORD: ${SONAR_ADMIN_PASSWORD:-admin}
+    ports:
+      - '9000:9000'
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - brain-agriculture-net
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9000/api/system/status | grep -q "\"status\":\"UP\""']
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+
+  # ─── Setup automático do SonarQube (cria projetos via API) ─────────────────
+  sonarqube-setup:
+    image: curlimages/curl:latest
+    container_name: brain-agriculture-sonar-setup
+    depends_on:
+      sonarqube:
+        condition: service_healthy
+    environment:
+      SONAR_URL: http://sonarqube:9000
+      SONAR_ADMIN_USER: ${SONAR_ADMIN_USER:-admin}
+      SONAR_ADMIN_PASSWORD: ${SONAR_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./scripts/sonar-setup.sh:/sonar-setup.sh:ro
+    entrypoint: ['sh', '/sonar-setup.sh']
+    networks:
+      - brain-agriculture-net
+    restart: 'no'

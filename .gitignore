@@ -1,0 +1,30 @@
+# Node modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+backend/dist/
+frontend/dist/
+frontend/build/
+
+# Environment files
+.env
+*.env.local
+*.env.development
+*.env.production
+
+# TypeScript incremental compile info
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+.makuco/*
