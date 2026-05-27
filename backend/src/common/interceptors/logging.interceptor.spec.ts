@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { LoggingInterceptor } from './logging.interceptor';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -19,8 +20,11 @@ describe('LoggingInterceptor', () => {
   let interceptor: LoggingInterceptor;
 
   beforeEach(() => {
-    interceptor = new LoggingInterceptor();
     jest.clearAllMocks();
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    interceptor = new LoggingInterceptor();
     mockExecutionContext.switchToHttp.mockReturnValue({
       getRequest: jest.fn().mockReturnValue({ method: 'GET', url: '/test' }),
       getResponse: jest.fn().mockReturnValue({ statusCode: 200 }),

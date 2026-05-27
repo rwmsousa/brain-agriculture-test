@@ -3,6 +3,7 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
+  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -23,8 +24,11 @@ describe('GlobalExceptionFilter', () => {
   let filter: GlobalExceptionFilter;
 
   beforeEach(() => {
-    filter = new GlobalExceptionFilter();
     jest.clearAllMocks();
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    filter = new GlobalExceptionFilter();
     mockArgumentsHost.switchToHttp.mockReturnValue({
       getResponse: jest.fn().mockReturnValue(mockResponse),
     });
