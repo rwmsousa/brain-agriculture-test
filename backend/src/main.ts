@@ -12,10 +12,32 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // CORS
+  const allowedOrigins: string[] = ['http://localhost:3000'];
+
+  // Allow the explicitly configured frontend URL (e.g. set via Railway variable)
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+
+  // Auto-detect the frontend domain from RAILWAY_PUBLIC_DOMAIN when available.
+  // RAILWAY_PUBLIC_DOMAIN exposes the backend's own public domain; we derive the
+  // frontend URL by replacing the "backend" segment with "frontend".
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    const frontendDomain = process.env.RAILWAY_PUBLIC_DOMAIN.replace(
+      'backend',
+      'frontend',
+    );
+    const frontendUrl = `https://${frontendDomain}`;
+    if (!allowedOrigins.includes(frontendUrl)) {
+      allowedOrigins.push(frontendUrl);
+    }
+  }
+
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   // Global validation pipe
