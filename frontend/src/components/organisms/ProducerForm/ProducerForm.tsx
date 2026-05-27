@@ -4,6 +4,7 @@ import { Button } from '../../atoms/Button/Button';
 import { Input } from '../../atoms/Input/Input';
 import { Select } from '../../atoms/Select/Select';
 import { FormField } from '../../molecules/FormField/FormField';
+import { ErrorMessage } from '../../atoms/ErrorMessage/ErrorMessage';
 import {
   validateCPF,
   validateCNPJ,
@@ -48,12 +49,31 @@ const ThreeColumns = styled.div`
   gap: 0 12px;
 `;
 
+const CropRowHeader = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  margin-bottom: 4px;
+`;
+
+const CropColumnLabel = styled.span`
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+`;
+
 const CropRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 8px;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 8px;
+`;
+
+const CropField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const AddCropButton = styled.button`
@@ -87,7 +107,6 @@ const RemoveCropButton = styled.button`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-bottom: 1px;
 
   &:hover {
     background: #ffebee;
@@ -459,9 +478,17 @@ export const ProducerForm: React.FC<ProducerFormProps> = ({ producer, onSuccess,
         </NoCropsText>
       )}
 
+      {cropEntries.length > 0 && (
+        <CropRowHeader>
+          <CropColumnLabel>Safra</CropColumnLabel>
+          <CropColumnLabel>Cultura</CropColumnLabel>
+          <span />
+        </CropRowHeader>
+      )}
+
       {cropEntries.map((entry, index) => (
         <CropRow key={entry.tempId}>
-          <FormField label={index === 0 ? 'Safra' : ''} error={errors[`crop_harvest_${index}`]}>
+          <CropField>
             <Select
               value={entry.harvestId}
               onChange={(e) => updateCropEntry(entry.tempId, 'harvestId', e.target.value)}
@@ -469,9 +496,12 @@ export const ProducerForm: React.FC<ProducerFormProps> = ({ producer, onSuccess,
               placeholder="Selecione a safra"
               error={errors[`crop_harvest_${index}`]}
             />
-          </FormField>
+            {errors[`crop_harvest_${index}`] && (
+              <ErrorMessage>{errors[`crop_harvest_${index}`]}</ErrorMessage>
+            )}
+          </CropField>
 
-          <FormField label={index === 0 ? 'Cultura' : ''} error={errors[`crop_type_${index}`]}>
+          <CropField>
             <Select
               value={entry.cropTypeId}
               onChange={(e) => updateCropEntry(entry.tempId, 'cropTypeId', e.target.value)}
@@ -479,16 +509,15 @@ export const ProducerForm: React.FC<ProducerFormProps> = ({ producer, onSuccess,
               placeholder="Selecione a cultura"
               error={errors[`crop_type_${index}`]}
             />
-          </FormField>
+            {errors[`crop_type_${index}`] && (
+              <ErrorMessage>{errors[`crop_type_${index}`]}</ErrorMessage>
+            )}
+          </CropField>
 
           <RemoveCropButton
             type="button"
             onClick={() => removeCropEntry(entry.tempId)}
             title="Remover cultura"
-            style={{
-              alignSelf: index === 0 ? 'flex-end' : 'center',
-              marginBottom: index === 0 ? '1px' : '0',
-            }}
           >
             ×
           </RemoveCropButton>
