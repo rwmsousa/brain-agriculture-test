@@ -14,8 +14,8 @@ import { buildProducer } from './factories/producer.factory';
 // ─── Dados de referência ─────────────────────────────────────────────────────
 const STATES_DISTRIBUTION = ['MT', 'GO', 'SP', 'MG', 'PR', 'RS', 'BA', 'MS', 'TO', 'PI'];
 
-// Nomes devem coincidir exatamente com a migração 005-seed-crop-types
-const CROP_TYPES = ['Soja', 'Milho', 'Cafe', 'Cana de Acucar', 'Algodao', 'Trigo'];
+// Nomes devem coincidir exatamente com a migração 005-seed-crop-types (corrigido em 006)
+const CROP_TYPES = ['Soja', 'Milho', 'Café', 'Cana de Açúcar', 'Algodão', 'Trigo'];
 
 const HARVESTS = ['Safra 2021', 'Safra 2022', 'Safra 2023', 'Safra 2024'];
 

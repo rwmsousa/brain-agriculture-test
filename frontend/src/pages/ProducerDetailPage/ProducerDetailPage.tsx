@@ -43,9 +43,12 @@ export const ProducerDetailPage: React.FC = () => {
   return (
     <PageContainer>
       <BackLink to="/producers">← Voltar aos Produtores</BackLink>
-      {status === 'loading' && <LoadingSpinner />}
-      {status === 'failed' && <p>Produtor nao encontrado.</p>}
-      {status === 'succeeded' && producer && <ProducerDetail producer={producer} />}
+      {/* Spinner apenas na carga inicial (producer ainda não existe).
+          Durante refreshes mantém o ProducerDetail montado para preservar
+          o estado local (fazenda aberta, seleções, etc.). */}
+      {status === 'loading' && !producer && <LoadingSpinner />}
+      {status === 'failed' && !producer && <p>Produtor não encontrado.</p>}
+      {producer && <ProducerDetail producer={producer} />}
     </PageContainer>
   );
 };

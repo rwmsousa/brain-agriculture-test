@@ -47,46 +47,50 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ stats }) => {
     value: item.count,
   }));
 
+  const outrasAreas = Math.max(
+    0,
+    stats.totalHectares - stats.landUse.totalArableArea - stats.landUse.totalVegetationArea,
+  );
+
+  const COLORS_LAND = ['#2e7d32', '#66bb6a', '#c8e6c9'];
+
   const landUseData = [
-    { name: 'Agricultavel', value: stats.landUse.totalArableArea },
-    { name: 'Vegetacao', value: stats.landUse.totalVegetationArea },
+    { name: 'Agricultável', value: stats.landUse.totalArableArea },
+    { name: 'Vegetação', value: stats.landUse.totalVegetationArea },
+    ...(outrasAreas > 0 ? [{ name: 'Outras Áreas', value: outrasAreas }] : []),
   ];
+
+  const fmt = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
 
   return (
     <div>
+      {/* Linha 1: totais gerais */}
       <Grid>
         <StatCard title="Total de Fazendas" value={stats.totalFarms} />
-        <StatCard
-          title="Total de Hectares"
-          value={stats.totalHectares.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}
-        />
-        <StatCard
-          title="Area Agricultavel (ha)"
-          value={stats.landUse.totalArableArea.toLocaleString('pt-BR', {
-            maximumFractionDigits: 2,
-          })}
-        />
-        <StatCard
-          title="Area de Vegetacao (ha)"
-          value={stats.landUse.totalVegetationArea.toLocaleString('pt-BR', {
-            maximumFractionDigits: 2,
-          })}
-        />
+        <StatCard title="Total de Hectares (ha)" value={fmt(stats.totalHectares)} />
+      </Grid>
+
+      {/* Linha 2: detalhamento do uso do solo (deve somar ao Total de Hectares) */}
+      <Grid style={{ marginBottom: 32 }}>
+        <StatCard title="Área Agricultável (ha)" value={fmt(stats.landUse.totalArableArea)} />
+        <StatCard title="Área de Vegetação (ha)" value={fmt(stats.landUse.totalVegetationArea)} />
+        {outrasAreas > 0 && <StatCard title="Outras Áreas (ha)" value={fmt(outrasAreas)} />}
       </Grid>
 
       <ChartsGrid>
         <ChartCard>
           <ChartTitle>Fazendas por Estado</ChartTitle>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
               <Pie
                 data={stateData}
                 cx="50%"
-                cy="50%"
-                outerRadius={80}
+                cy="48%"
+                outerRadius={75}
                 dataKey="value"
                 nameKey="name"
-                label
+                label={({ value }) => value}
+                labelLine={true}
               >
                 {stateData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -100,16 +104,17 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ stats }) => {
 
         <ChartCard>
           <ChartTitle>Fazendas por Tipo de Cultura</ChartTitle>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
               <Pie
                 data={cropTypeData}
                 cx="50%"
-                cy="50%"
-                outerRadius={80}
+                cy="48%"
+                outerRadius={75}
                 dataKey="value"
                 nameKey="name"
-                label
+                label={({ value }) => value}
+                labelLine={true}
               >
                 {cropTypeData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -123,22 +128,23 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ stats }) => {
 
         <ChartCard>
           <ChartTitle>Uso do Solo</ChartTitle>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
               <Pie
                 data={landUseData}
                 cx="50%"
-                cy="50%"
-                outerRadius={80}
+                cy="48%"
+                outerRadius={75}
                 dataKey="value"
                 nameKey="name"
-                label
+                label={({ value }) => value.toLocaleString('pt-BR')}
+                labelLine={true}
               >
                 {landUseData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={COLORS_LAND[index % COLORS_LAND.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip formatter={(value: number) => value.toLocaleString('pt-BR')} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>

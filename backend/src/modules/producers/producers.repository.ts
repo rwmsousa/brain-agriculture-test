@@ -11,11 +11,20 @@ export class ProducersRepository {
   ) {}
 
   findAll(): Promise<Producer[]> {
-    return this.repo.find();
+    // Carrega 'farms' para exibir o total de fazendas por produtor na listagem.
+    return this.repo.find({ relations: ['farms'] });
   }
 
   findById(id: string): Promise<Producer | null> {
-    return this.repo.findOne({ where: { id }, relations: ['farms', 'farms.plantedCrops'] });
+    return this.repo.findOne({
+      where: { id },
+      relations: [
+        'farms',
+        'farms.plantedCrops',
+        'farms.plantedCrops.harvest',
+        'farms.plantedCrops.cropType',
+      ],
+    });
   }
 
   findByDocument(document: string): Promise<Producer | null> {

@@ -7,6 +7,7 @@ interface SelectOption {
 }
 
 interface SelectProps {
+  id?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: SelectOption[];
@@ -29,8 +30,15 @@ const StyledSelect = styled.select<{ $hasError?: boolean }>`
   }
 `;
 
-export const Select: React.FC<SelectProps> = ({ value, onChange, options, error, placeholder }) => (
-  <StyledSelect value={value} onChange={onChange} $hasError={!!error}>
+export const Select: React.FC<SelectProps> = ({
+  id,
+  value,
+  onChange,
+  options,
+  error,
+  placeholder,
+}) => (
+  <StyledSelect id={id} value={value} onChange={onChange} $hasError={!!error}>
     {placeholder && <option value="">{placeholder}</option>}
     {options.map((opt) => (
       <option key={opt.value} value={opt.value}>

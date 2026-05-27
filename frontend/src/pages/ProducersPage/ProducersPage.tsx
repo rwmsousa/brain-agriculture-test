@@ -46,10 +46,12 @@ const Modal = styled.div`
 
 const ModalContent = styled.div`
   background: white;
-  padding: 24px;
+  padding: 28px 32px;
   border-radius: 8px;
   width: 100%;
-  max-width: 480px;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
 `;
 
 export const ProducersPage: React.FC = () => {

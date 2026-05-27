@@ -8,9 +8,9 @@ export class SeedCropTypes1700000000005 implements MigrationInterface {
       INSERT INTO "tipos_cultura" ("name") VALUES
         ('Soja'),
         ('Milho'),
-        ('Cafe'),
-        ('Cana de Acucar'),
-        ('Algodao'),
+        ('Café'),
+        ('Cana de Açúcar'),
+        ('Algodão'),
         ('Trigo')
       ON CONFLICT ("name") DO NOTHING
     `);
