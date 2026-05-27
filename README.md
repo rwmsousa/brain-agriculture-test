@@ -1,45 +1,45 @@
-# Brain Agriculture — Sistema de Gestao de Produtores Rurais
+# Brain Agriculture — Sistema de Gestão de Produtores Rurais
 
-Sistema fullstack para cadastro e gestao de **produtores rurais**, **fazendas**,
+Sistema fullstack para cadastro e gestão de **produtores rurais**, **fazendas**,
 **safras**, **tipos de cultura** e **culturas plantadas**, com **dashboard
-analitico** em tempo real.
+analítico** em tempo real.
 
 ---
 
-## Visao Geral
+## Visão Geral
 
-O **Brain Agriculture** e uma plataforma de gerenciamento agropecuario que permite:
+O **Brain Agriculture** é uma plataforma de gerenciamento agropecuário que permite:
 
 - Cadastrar **produtores rurais** com CPF ou CNPJ,
-  com validacao pelo algoritmo oficial brasileiro.
+  com validação pelo algoritmo oficial brasileiro.
 - Registrar **fazendas** vinculadas a cada produtor,
-  com controle de area total, agricultavel e de vegetacao.
+  com controle de área total, agricultável e de vegetação.
 - Organizar **safras** (ex.: *Safra 2023/2024*) e **tipos de cultura**
-  (Soja, Milho, Algodao, etc.).
+  (Soja, Milho, Algodão, etc.).
 - Associar **culturas plantadas** a cada fazenda por safra.
-- Visualizar **estatisticas consolidadas** no dashboard: total de fazendas,
-  hectares, distribuicao por estado, por tipo de cultura e uso do solo.
+- Visualizar **estatísticas consolidadas** no dashboard: total de fazendas,
+  hectares, distribuição por estado, por tipo de cultura e uso do solo.
 
 **Stack:** React + Redux Toolkit (frontend) · NestJS + TypeORM +
 PostgreSQL (backend) · Docker Compose.
 
 ---
 
-## Telas da Aplicacao
+## Telas da Aplicação
 
 ### 1. Dashboard
 
 **Rota:** `/`
 
-Painel analitico com visualizacoes em grafico de pizza:
+Painel analítico com visualizações em gráfico de pizza:
 
-| Card | Conteudo |
+| Card | Conteúdo |
 | --- | --- |
-| **Total de Fazendas** | Numero absoluto de fazendas cadastradas |
-| **Total de Hectares** | Soma de toda a area registrada |
-| **Por Estado** | Distribuicao percentual das fazendas por UF |
-| **Por Cultura** | Distribuicao das culturas plantadas (Soja, Milho, etc.) |
-| **Uso do Solo** | Proporcao entre area agricultavel e area de vegetacao |
+| **Total de Fazendas** | Número absoluto de fazendas cadastradas |
+| **Total de Hectares** | Soma de toda a área registrada |
+| **Por Estado** | Distribuição percentual das fazendas por UF |
+| **Por Cultura** | Distribuição das culturas plantadas (Soja, Milho, etc.) |
+| **Uso do Solo** | Proporção entre área agricultável e área de vegetação |
 
 ---
 
@@ -51,36 +51,36 @@ Lista todos os produtores cadastrados em tabela com:
 
 - Nome (link para o detalhe do produtor)
 - Documento mascarado (CPF ou CNPJ)
-- Numero de fazendas associadas
-- Acoes: **Editar** (abre o formulario inline) e **Excluir**
-  (com dialogo de confirmacao)
+- Número de fazendas associadas
+- Ações: **Editar** (abre o formulário inline) e **Excluir**
+  (com diálogo de confirmação)
 
-Botao **"+ Novo Produtor"** abre o formulario unificado de cadastro.
+Botão **"+ Novo Produtor"** abre o formulário unificado de cadastro.
 
 ---
 
-### 3. Cadastro e Edicao de Produtor
+### 3. Cadastro e Edição de Produtor
 
-**Rota:** `/producers` (inline via formulario)
+**Rota:** `/producers` (inline via formulário)
 
-Formulario unificado que cadastra produtor e fazenda em uma unica etapa.
+Formulário unificado que cadastra produtor e fazenda em uma única etapa.
 
 #### Dados do produtor
 
 - Nome completo
-- Tipo de documento (CPF / CNPJ) — altera placeholder e validacao
+- Tipo de documento (CPF / CNPJ) — altera placeholder e validação
   automaticamente
-- Numero do documento (validado pelo algoritmo oficial)
+- Número do documento (validado pelo algoritmo oficial)
 
 #### Dados da fazenda
 
 - Nome, cidade e estado (seletor com 27 UFs)
-- Area total, agricultavel e de vegetacao (em hectares)
-- Validacao: `area_agricultavel + area_vegetacao <= area_total`
+- Área total, agricultável e de vegetação (em hectares)
+- Validação: `area_agricultavel + area_vegetacao <= area_total`
 
 #### Culturas plantadas (opcional)
 
-- Botao "+ Adicionar Cultura" inclui uma linha com seletores de safra
+- Botão "+ Adicionar Cultura" inclui uma linha com seletores de safra
   e tipo de cultura
 - Cada linha pode ser removida individualmente
 
@@ -93,31 +93,31 @@ Formulario unificado que cadastra produtor e fazenda em uma unica etapa.
 Exibe o perfil completo do produtor com:
 
 - Dados cadastrais e documento (mascarado)
-- Lista de fazendas com suas areas
-- Para cada fazenda: culturas plantadas por safra, com opcao de
+- Lista de fazendas com suas áreas
+- Para cada fazenda: culturas plantadas por safra, com opção de
   adicionar/remover culturas
 - Link de voltar para a lista de produtores
 
 ---
 
-### 5. Configuracoes
+### 5. Configurações
 
 **Rota:** `/config`
 
-Area de gerenciamento dos dados de referencia:
+Área de gerenciamento dos dados de referência:
 
 | Aba | Funcionalidade |
 | --- | --- |
 | **Safras** | Lista safras cadastradas e permite criar novas |
-| **Tipos de Cultura** | Lista e cria tipos de cultura para uso nos formularios |
+| **Tipos de Cultura** | Lista e cria tipos de cultura para uso nos formulários |
 
 ---
 
-## Pre-requisitos
+## Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) >= 24
 - [Docker Compose](https://docs.docker.com/compose/) >= 2
-  (ja incluido no Docker Desktop)
+  (já incluído no Docker Desktop)
 
 > **Sem necessidade de Node.js local** — tudo roda via containers.
 
@@ -125,7 +125,7 @@ Area de gerenciamento dos dados de referencia:
 
 ## Subindo com Docker
 
-### 1. Clone o repositorio
+### 1. Clone o repositório
 
 ```bash
 git clone git@github.com:rwmsousa/brain-agriculture-test.git
@@ -138,8 +138,8 @@ cd brain-agriculture-test
 cp .env.example .env
 ```
 
-> Os valores padrao do `.env.example` funcionam para desenvolvimento local
-> sem nenhuma alteracao.
+> Os valores padrão do `.env.example` funcionam para desenvolvimento local
+> sem nenhuma alteração.
 
 ### 3. Suba a stack completa
 
@@ -153,8 +153,8 @@ Ou usando o Makefile:
 make up
 ```
 
-> O primeiro build pode levar 2-4 minutos (download de imagens + instalacao
-> de dependencias). Aguarde ate ver:
+> O primeiro build pode levar 2-4 minutos (download de imagens + instalação
+> de dependências). Aguarde até ver:
 > `backend | NestJS application is running on port 3001`.
 
 ### 4. (Opcional) Popule com dados de exemplo
@@ -163,18 +163,20 @@ make up
 docker compose exec backend npm run seed
 ```
 
+> O seeder é **idempotente** — pode ser executado múltiplas vezes sem
+> duplicar dados.
 
 ---
 
 ## URLs de Acesso
 
-| Servico | URL | Descricao |
+| Serviço | URL | Descrição |
 | --- | --- | --- |
 | **Frontend** | <http://localhost:3000> | Interface React |
-| **API REST** | <http://localhost:3001/api/v1> | Endpoints da aplicacao |
-| **Swagger UI** | <http://localhost:3001/api/docs> | Documentacao interativa |
+| **API REST** | <http://localhost:3001/api/v1> | Endpoints da aplicação |
+| **Swagger UI** | <http://localhost:3001/api/docs> | Documentação interativa |
 | **Swagger JSON** | <http://localhost:3001/api/docs-json> | Schema OpenAPI |
-| **SonarQube** | <http://localhost:9000> | Analise de qualidade |
+| **SonarQube** | <http://localhost:9000> | Análise de qualidade |
 
 ---
 
@@ -192,7 +194,7 @@ make test-backend
 # Somente frontend
 make test-frontend
 
-# Com relatorio de cobertura
+# Com relatório de cobertura
 make coverage
 ```
 
@@ -228,48 +230,48 @@ cd frontend && npm run test:cov
 
 ---
 
-## SonarQube — Analise de Qualidade
+## SonarQube — Análise de Qualidade
 
-O SonarQube ja esta incluido no `docker-compose.yml`.
+O SonarQube já está incluído no `docker-compose.yml`.
 
 ### Passo 1 — Subir o SonarQube
 
-Se a stack ja esta no ar (`make up`), o SonarQube sobe junto.
+Se a stack já está no ar (`make up`), o SonarQube sobe junto.
 Para subir apenas o SonarQube de forma isolada:
 
 ```bash
 docker compose up -d sonarqube sonarqube-db sonarqube-setup
 ```
 
-> A inicializacao completa leva **1-2 minutos**.
-> Aguarde ate <http://localhost:9000> responder.
+> A inicialização completa leva **1-2 minutos**.
+> Aguarde até <http://localhost:9000> responder.
 
 ### Passo 2 — Acessar e fazer login
 
 Acesse <http://localhost:9000> com as credenciais abaixo:
 
-| Campo | Valor padrao |
+| Campo | Valor padrão |
 | --- | --- |
-| Usuario | `admin` |
+| Usuário | `admin` |
 | Senha | `admin` |
 
-> Na primeira vez, o SonarQube solicitara a troca de senha.
-> O servico `sonarqube-setup` cria automaticamente os projetos
+> Na primeira vez, o SonarQube solicitará a troca de senha.
+> O serviço `sonarqube-setup` cria automaticamente os projetos
 > `brain-agriculture-backend` e `brain-agriculture-frontend`.
 
-### Passo 3 — Gerar um Token de Analise
+### Passo 3 — Gerar um Token de Análise
 
-1. Apos o login, clique no seu avatar (canto superior direito)
-   e va em **My Account**
+1. Após o login, clique no seu avatar (canto superior direito)
+   e vá em **My Account**
 2. Clique na aba **Security**
 3. Em **Generate Tokens**, preencha:
    - **Name:** `brain-agriculture-scanner` (qualquer nome)
    - **Type:** `Global Analysis Token`
    - **Expires in:** `No expiration` (ou o prazo desejado)
 4. Clique em **Generate**
-5. **Copie o token gerado** — ele so e exibido uma vez
+5. **Copie o token gerado** — ele só é exibido uma vez
 
-Para ver as instrucoes diretamente no terminal:
+Para ver as instruções diretamente no terminal:
 
 ```bash
 make sonar-token-help
@@ -290,7 +292,7 @@ make sonar-frontend SONAR_TOKEN=<seu-token>
 ```
 
 > O Makefile utiliza o `sonar-scanner-cli` via Docker.
-> Nao e necessario instalar o scanner localmente.
+> Não é necessário instalar o scanner localmente.
 
 ### Passo 5 — Ver os resultados
 
@@ -301,38 +303,55 @@ visualizar cobertura de testes, code smells, bugs e vulnerabilidades.
 
 ## Arquitetura
 
+```text
++-----------------------------------------------------+
+|                   Docker Compose                    |
+|                                                     |
+|  +-----------+    +-----------+    +-------------+  |
+|  | frontend  |--->|  backend  |--->|  database   |  |
+|  |  React    |    |  NestJS   |    | PostgreSQL  |  |
+|  |  :3000    |    |  :3001    |    |   :5432     |  |
+|  +-----------+    +-----------+    +-------------+  |
+|                                                     |
+|  +-----------+    +-----------------------------+   |
+|  | sonarqube |<---| sonarqube-setup             |   |
+|  |  :9000    |    | (cria projetos via API REST) |   |
+|  +-----------+    +-----------------------------+   |
++-----------------------------------------------------+
+```
+
 ### Backend — NestJS
 
 | Aspecto | Detalhe |
 | --- | --- |
-| Arquitetura | Controller -> Service -> Repository -> Entity |
-| Modulos | Producers, Farms, Harvests, CropTypes, PlantedCrops, Dashboard |
-| Banco | PostgreSQL 15 + TypeORM + migrations automaticas |
-| Validacao | class-validator com ValidationPipe global |
-| Documentacao | Swagger/OpenAPI em `/api/docs` |
+| Arquitetura | Controller → Service → Repository → Entity |
+| Módulos | Producers, Farms, Harvests, CropTypes, PlantedCrops, Dashboard |
+| Banco | PostgreSQL 15 + TypeORM + migrations automáticas |
+| Validação | class-validator com ValidationPipe global |
+| Documentação | Swagger/OpenAPI em `/api/docs` |
 | Testes | Jest + @nestjs/testing |
 
 ### Frontend — React
 
 | Aspecto | Detalhe |
 | --- | --- |
-| Estado global | Redux Toolkit com slices por dominio |
+| Estado global | Redux Toolkit com slices por domínio |
 | Componentes | Atomic Design: atoms, molecules, organisms, pages |
-| Estilizacao | Styled Components |
-| Graficos | Recharts (PieChart) |
+| Estilização | Styled Components |
+| Gráficos | Recharts (PieChart) |
 | Roteamento | React Router DOM v6 |
 | Testes | Jest + React Testing Library |
 
 ---
 
-## Variaveis de Ambiente
+## Variáveis de Ambiente
 
-Copie `.env.example` com `cp .env.example .env` e ajuste conforme necessario.
+Copie `.env.example` com `cp .env.example .env` e ajuste conforme necessário.
 
-| Variavel | Descricao | Padrao |
+| Variável | Descrição | Padrão |
 | --- | --- | --- |
 | `POSTGRES_DB` | Nome do banco de dados | `brain_agriculture` |
-| `POSTGRES_USER` | Usuario do banco | `brain` |
+| `POSTGRES_USER` | Usuário do banco | `brain` |
 | `POSTGRES_PASSWORD` | Senha do banco | `agriculture` |
 | `DATABASE_HOST` | Host do PostgreSQL | `database` (Docker) |
 | `DATABASE_PORT` | Porta do PostgreSQL | `5432` |
@@ -342,22 +361,22 @@ Copie `.env.example` com `cp .env.example .env` e ajuste conforme necessario.
 
 ---
 
-## Regras de Negocio
+## Regras de Negócio
 
 | # | Regra |
 | --- | --- |
-| BR-01 | CPF e CNPJ sao validados pelo algoritmo oficial brasileiro. |
+| BR-01 | CPF e CNPJ são validados pelo algoritmo oficial brasileiro. |
 | BR-02 | `area_agricultavel + area_vegetacao <= area_total` em cada fazenda. |
-| BR-03 | O documento (CPF ou CNPJ) deve ser unico entre os produtores. |
+| BR-03 | O documento (CPF ou CNPJ) deve ser único entre os produtores. |
 | BR-04 | Excluir um produtor remove em cascata suas fazendas e culturas. |
-| BR-05 | Uma fazenda pode ter multiplas culturas por safra, mas nao a mesma cultura duplicada. |
-| BR-06 | O estado da fazenda deve ser uma das 27 UFs brasileiras validas. |
+| BR-05 | Uma fazenda pode ter múltiplas culturas por safra, mas não a mesma cultura duplicada. |
+| BR-06 | O estado da fazenda deve ser uma das 27 UFs brasileiras válidas. |
 
 ---
 
 ## Diagrama ER
 
-O diagrama completo esta em [`docs/er-diagram.puml`](docs/er-diagram.puml)
+O diagrama completo está em [`docs/er-diagram.puml`](docs/er-diagram.puml)
 (PlantUML).
 
 ```text
@@ -368,20 +387,20 @@ produtores
               +-- tipos_cultura
 ```
 
-| Tabela | Descricao |
+| Tabela | Descrição |
 | --- | --- |
-| `produtores` | Produtores rurais — CPF ou CNPJ unico |
-| `fazendas` | Fazendas de um produtor, com areas em hectares |
-| `safras` | Periodos de safra (ex.: Safra 2023/2024) |
-| `tipos_cultura` | Tipos de cultura (Soja, Milho, Cafe, etc.) |
-| `culturas_plantadas` | Relacao ternaria: fazenda x safra x tipo de cultura |
+| `produtores` | Produtores rurais — CPF ou CNPJ único |
+| `fazendas` | Fazendas de um produtor, com áreas em hectares |
+| `safras` | Períodos de safra (ex.: Safra 2023/2024) |
+| `tipos_cultura` | Tipos de cultura (Soja, Milho, Café, etc.) |
+| `culturas_plantadas` | Relação ternária: fazenda × safra × tipo de cultura |
 
 ---
 
-## Comandos Uteis (Makefile)
+## Comandos Úteis (Makefile)
 
 ```bash
-make help            # lista todos os comandos disponiveis
+make help            # lista todos os comandos disponíveis
 make up              # sobe a stack completa
 make down            # para e remove os containers
 make restart         # reinicia a stack
@@ -392,7 +411,7 @@ make logs-frontend   # logs do nginx/React
 make logs-sonar      # logs do SonarQube
 make build           # rebuild sem cache
 make test            # roda todos os testes
-make coverage        # gera relatorios de cobertura
+make coverage        # gera relatórios de cobertura
 make clean           # remove dist/ e coverage/ locais
 make prune           # remove containers, volumes e imagens (apaga dados)
 ```
