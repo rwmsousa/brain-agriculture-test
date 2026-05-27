@@ -5,6 +5,7 @@ Sistema fullstack para cadastro e gestão de **produtores rurais**, **fazendas**
 analítico** em tempo real.
 
 ---
+![Home](home-brain-agriculture.png)
 
 ## Visão Geral
 
