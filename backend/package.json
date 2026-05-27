@@ -23,7 +23,8 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:run": "npm run typeorm migration:run -- -d src/config/ormconfig.ts",
     "migration:revert": "npm run typeorm migration:revert -- -d src/config/ormconfig.ts",
-    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
+    "seed": "node dist/database/seeds/seed.js",
+    "seed:dev": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
     "prepare": "husky install"
   },
   "dependencies": {
